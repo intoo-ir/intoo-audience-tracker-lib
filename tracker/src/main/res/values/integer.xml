@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="run_time_interval_seconds_default_key" type="integer">2000</item>
+</resources>
