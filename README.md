@@ -2,8 +2,6 @@
  
 ## Download
  
- # use Gradle:
-
  -  Add the following to your project level `build.gradle`:
  
  ```gradle
