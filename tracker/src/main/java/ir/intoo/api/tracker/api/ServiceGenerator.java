@@ -46,7 +46,6 @@ public class ServiceGenerator {
             .connectTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(1, TimeUnit.MINUTES)
             .protocols(Util.immutableList(Protocol.HTTP_1_1))
-
             .readTimeout(1, TimeUnit.MINUTES).addInterceptor(new listener()).build();
 
     class listener implements Interceptor {

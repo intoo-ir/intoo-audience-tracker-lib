@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
+import ir.intoo.api.tracker.helper.PermissionCheck
 import ir.intoo.api.tracker.helper.StoreHelper
 import ir.intoo.api.tracker.model.Configure
 
@@ -92,12 +93,12 @@ abstract class LocationTracker(var context: Context) {
                 previousGpsLocation = location
             }
 
-            override fun onStatusChanged(
-                provider: String,
-                status: Int,
-                extras: Bundle
-            ) {
-            }
+//            override fun onStatusChanged(
+//                provider: String,
+//                status: Int,
+//                extras: Bundle
+//            ) {
+//            }
 
             override fun onProviderEnabled(provider: String) {}
             override fun onProviderDisabled(provider: String) {
@@ -119,12 +120,12 @@ abstract class LocationTracker(var context: Context) {
                 previousNetworkLocation = location
             }
 
-            override fun onStatusChanged(
-                provider: String,
-                status: Int,
-                extras: Bundle
-            ) {
-            }
+//            override fun onStatusChanged(
+//                provider: String,
+//                status: Int,
+//                extras: Bundle
+//            ) {
+//            }
 
             override fun onProviderEnabled(provider: String) {}
             override fun onProviderDisabled(provider: String) {
@@ -134,7 +135,6 @@ abstract class LocationTracker(var context: Context) {
 
 
     private fun getGpsLocation() {
-
         if (isGPSEnabled) {
             if (gpsLocation == null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -198,7 +198,7 @@ abstract class LocationTracker(var context: Context) {
             return
         }
 
-        mLocationRequest = LocationRequest()
+        mLocationRequest = LocationRequest.create()
         mLocationRequest!!.interval = updateInterval
         mLocationRequest!!.fastestInterval = fastestInterval
         mLocationRequest!!.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
@@ -225,14 +225,11 @@ abstract class LocationTracker(var context: Context) {
         locationUpdate: LocationUpdate
     ) {
 
-        if (permissionCheck.checkPermission()) {
+        if (permissionCheck.checkSelfPermission()) {
 
             if (updateInterval < 1000 && fastestInterval < 1000) {
-
                 onFailure(ErrorMessage.FAILED_TO_START)
-
                 return
-
             } else {
 
                 this.updateInterval = updateInterval
@@ -250,7 +247,7 @@ abstract class LocationTracker(var context: Context) {
 
     fun startLocationTracker(locationUpdate: LocationUpdate) {
 
-        if (permissionCheck.checkPermission()) {
+        if (permissionCheck.checkSelfPermission()) {
 
 
             when (locationUpdate) {

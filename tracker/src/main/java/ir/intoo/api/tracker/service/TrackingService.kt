@@ -1,9 +1,6 @@
 package ir.intoo.api.tracker.service
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.location.Location
@@ -11,18 +8,16 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import ir.intoo.api.tracker.ErrorMessage
-import ir.intoo.api.tracker.LocationTracker
-import ir.intoo.api.tracker.LocationUpdate
-import ir.intoo.api.tracker.SuccessMessage
+import ir.intoo.api.tracker.*
 import ir.intoo.api.tracker.helper.LocationReceiver
+import ir.intoo.api.tracker.helper.StoreHelper
 import ir.intoo.api.tracker.model.TrackerModel
 
 
 class TrackingService : Service() {
-    private val CHANNEL_ID = "ForegroundService"
-
-    var locationTracker: LocationTracker? = null
+    private val channelId = "ForegroundService"
+    private val tag = TrackingService::class.java.name
+    private var locationTracker: LocationTracker? = null
 
     /**
      * Handle action Stop in the provided background thread with the provided
@@ -38,54 +33,18 @@ class TrackingService : Service() {
      * parameters.
      */
     private fun handleActionStart() {
-        locationTracker?.apply {
-            startLocationTracker(2000, 2000, 1f, LocationUpdate.ALL)
-//            startLocationTracker(LocationUpdate.ALL)
-//
-//            Handler().postDelayed(
-//                {
-//                    TrackingService.locationTracker?.stopLocationTracker(LocationUpdate.ALL)
-//                },5000
-//            )
-
-        }
-
-    }
-
-    companion object {
-        @JvmStatic
-        fun startTrackingService(context: Context) {
-            val intent = Intent(context, TrackingService::class.java).apply {
-                action = ServiceAction.ACTION_START.name
-            }
-            context.startService(intent)
-        }
-
-        @JvmStatic
-        fun stopTrackingService(context: Context): Intent? {
-            val intent = Intent(context, TrackingService::class.java).apply {
-                action = ServiceAction.ACTION_STOP.name
-            }
-            return intent
-        }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val input = intent?.getStringExtra("inputExtra")
+//        val pStopSelf =
+//            stopTrackingService(this).let {
+//                PendingIntent.getService(
+//                    this, 0,
+//                    it, PendingIntent.FLAG_CANCEL_CURRENT
+//                )
+//            }
         createNotificationChannel()
-        val pStopSelf =
-            stopTrackingService(this)?.let {
-                PendingIntent.getService(
-                    this, 0,
-                    it, PendingIntent.FLAG_CANCEL_CURRENT
-                )
-            }
-
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Foreground Service Kotlin Example")
-            .setContentText(input)
-            .addAction(android.R.drawable.btn_dialog, "STOP", pStopSelf)
-            .setSmallIcon(androidx.appcompat.R.drawable.abc_ab_share_pack_mtrl_alpha)
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Tracker Service")
+//            .addAction(android.R.drawable.btn_dialog, "STOP", pStopSelf)
+            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .build()
         startForeground(1, notification)
         locationTracker = object : LocationTracker(this@TrackingService) {
@@ -104,19 +63,58 @@ class TrackingService : Service() {
                         model.time = networkLocation.time
                         model.altitude = networkLocation.altitude
                         model.networkName = locationUpdate.name
-                        LocationReceiver(context, model)
+                        LocationReceiver(context, model, showLog)
                     }
                 }
             }
 
             override fun onFailure(errorMessage: ErrorMessage) {
-                Log.e("ERROR", errorMessage.name)
+                Log.e(tag, errorMessage.name)
             }
 
             override fun onSuccess(successMessage: SuccessMessage) {
-                Log.e("SUCCESS", successMessage.name)
+                Log.e(tag, successMessage.name)
             }
         }
+        val storeHelper = StoreHelper(context = applicationContext)
+        locationTracker?.apply {
+            startLocationTracker(
+                storeHelper.getConfigure().runTimeIntervalSeconds,
+                storeHelper.getConfigure().runTimeIntervalSeconds,
+                storeHelper.getConfigure().changeLocationDetectionMeters,
+                LocationUpdate.ALL
+            )
+        }
+
+    }
+
+    companion object {
+        private var showLog: Boolean = false
+        private var isRunning = false
+
+        fun startTrackingService(context: Context, showLog: Boolean) {
+            val intent = Intent(context, TrackingService::class.java).apply {
+                action = ServiceAction.ACTION_START.name
+            }
+            context.startService(intent)
+            this.showLog = showLog
+        }
+
+        fun stopTrackingService(context: Context): Intent {
+            val intent = Intent(context, TrackingService::class.java).apply {
+                action = ServiceAction.ACTION_STOP.name
+            }
+            return intent
+        }
+
+        fun isRunningService(): Boolean {
+            return isRunning
+        }
+
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        isRunning = true
         when (intent?.action) {
             ServiceAction.ACTION_START.name -> {
                 handleActionStart()
@@ -128,6 +126,11 @@ class TrackingService : Service() {
         return START_NOT_STICKY
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        isRunning = false
+    }
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -135,13 +138,11 @@ class TrackingService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
-                CHANNEL_ID, "Foreground Service Channel",
+                channelId, "Foreground Service Channel",
                 NotificationManager.IMPORTANCE_DEFAULT,
             )
-
             val manager = getSystemService(NotificationManager::class.java)
             manager!!.createNotificationChannel(serviceChannel)
         }
     }
-
 }

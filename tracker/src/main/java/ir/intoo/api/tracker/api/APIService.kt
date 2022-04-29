@@ -9,9 +9,9 @@ import retrofit2.http.Body
 import retrofit2.http.Query
 
 interface APIService {
-    @GET("mobile-app/configure")
+    @GET("audience/configure")
     fun configure(@Query("packageName") packageName: String): Call<Configure>
 
-    @POST("mobile-app/record")
+    @POST("audience/record")
     fun recordLocation(@Body trackerModel: TrackerModel?): Call<Void?>?
 }

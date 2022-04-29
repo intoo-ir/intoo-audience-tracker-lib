@@ -10,6 +10,7 @@ import ir.intoo.api.tracker.model.Profile
 
 class StoreHelper(var context: Context) {
     private val timeIntervalKey: String = "RunTimeIntervalSeconds"
+    private val changeLocationDetectionMeters: String = "ChangeLocationDetectionMeters"
     private val accessTokenKey: String = "AccessToken"
     private val userAgeKey: String = "UserAge"
     private val userGenderKey: String = "UserGender"
@@ -22,6 +23,7 @@ class StoreHelper(var context: Context) {
         with(sharedPref.edit()) {
             putLong(timeIntervalKey, configure.runTimeIntervalSeconds)
             putString(accessTokenKey, configure.accessToken)
+            putFloat(changeLocationDetectionMeters, configure.changeLocationDetectionMeters)
             apply()
         }
     }
@@ -31,7 +33,9 @@ class StoreHelper(var context: Context) {
         val defaultValue =
             context.resources.getInteger(R.integer.run_time_interval_seconds_default_key)
         configure.runTimeIntervalSeconds =
-            sharedPref.getLong(timeIntervalKey, defaultValue.toLong())
+            sharedPref.getLong(timeIntervalKey, defaultValue.toLong())*1000
+        configure.changeLocationDetectionMeters =
+            sharedPref.getFloat(changeLocationDetectionMeters, 1.0F)
         configure.accessToken = sharedPref.getString(accessTokenKey, "").toString()
         return configure
     }

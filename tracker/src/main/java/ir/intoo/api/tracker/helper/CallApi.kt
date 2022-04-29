@@ -14,7 +14,7 @@ class CallApi {
     fun getConfigure(context: Context?) {
         val storeHelper = StoreHelper(context!!)
         val serviceGenerator = ServiceGenerator(context)
-        serviceGenerator.createService(APIService::class.java).configure(context.packageName)!!
+        serviceGenerator.createService(APIService::class.java).configure(context.packageName)
             .enqueue(object :
                 Callback<Configure?> {
                 override fun onResponse(call: Call<Configure?>, response: Response<Configure?>) {
