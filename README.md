@@ -16,7 +16,7 @@
 
 ```gradle
 dependencies {
-     compile 'com.github.sajad-zohrei:multi-directional-snackbar:1.1'
+       implementation 'com.github.intoo-ir:intoo-audience-tracker-lib:v0.2.0-alpha'
 }
 ```
 
