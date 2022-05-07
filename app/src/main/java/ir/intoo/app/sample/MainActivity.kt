@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
             findViewById<RadioButton>(R.id.radioFemale)
 
         //init
-        val tracker = Tracker(context = this@MainActivity, showLog = true)
+        val tracker = Tracker(this@MainActivity)
 
         //check running service tracker
         if (tracker.isRunningService()) {
@@ -61,13 +61,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         saveProfile.setOnClickListener {
-            var age = inputAge.text.toString().toIntOrNull()
-            var gender = Tracker.MALE
+            val age = inputAge.text.toString().toIntOrNull()
+            var gender = Tracker.Gender.male.name
             if (radioFemale.isChecked) {
-                gender = Tracker.FEMALE
-            }
-            if (age == null) {
-                age = 0
+                gender = Tracker.Gender.female.name
             }
             //save profile
             Tracker.saveProfile(this, userAge = age, userGender = gender)

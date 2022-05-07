@@ -13,7 +13,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 
 
 class PermissionCheck(private val context: Context) {
-    private var LOCATION_PERMISSIONS = arrayOf(
+    private var locationPermissions = arrayOf(
         permission.ACCESS_FINE_LOCATION,
         permission.ACCESS_COARSE_LOCATION
     )
@@ -39,7 +39,7 @@ class PermissionCheck(private val context: Context) {
 
     fun checkSelfPermission(): Boolean {
         var permissionCheck = true
-        for (permission in LOCATION_PERMISSIONS) {
+        for (permission in locationPermissions) {
             permissionCheck =
                 permissionCheck and (ContextCompat.checkSelfPermission(context, permission)
                         == PackageManager.PERMISSION_GRANTED)

@@ -1,4 +1,5 @@
 @file:JvmName("Tracker")
+
 package ir.intoo.api.tracker
 
 
@@ -13,7 +14,6 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import ir.intoo.api.tracker.helper.CallApi
 import ir.intoo.api.tracker.helper.LocationReceiver
-import ir.intoo.api.tracker.helper.PermissionCheck
 import ir.intoo.api.tracker.helper.StoreHelper
 import ir.intoo.api.tracker.model.Profile
 import ir.intoo.api.tracker.model.TrackerModel
@@ -26,10 +26,18 @@ class Tracker(
     private lateinit var locationTracker: LocationTracker
     private var isRunningTracker = false
 
+    enum class Gender() {
+        male, female
+    }
+
     companion object {
-        var MALE = 1
-        var FEMALE = 2
-        fun saveProfile(context: Context, userAge: Int = 0, userGender: Int = MALE) {
+
+
+        fun saveProfile(
+            context: Context,
+            userAge: Int?,
+            userGender: String?
+        ) {
             val profile = Profile()
             profile.userAge = userAge
             profile.userGender = userGender
@@ -95,7 +103,7 @@ class Tracker(
 
     fun stop() {
         locationTracker.stopLocationTracker(LocationUpdate.ALL)
-
+        isRunningTracker = false
     }
 
     fun isRunningTracker(): Boolean {

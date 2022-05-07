@@ -1,10 +1,9 @@
 package ir.intoo.api.tracker.helper
 
 import android.content.Context
-import android.util.Log
 import ir.intoo.api.tracker.api.ServiceGenerator
 import ir.intoo.api.tracker.api.APIService
-import ir.intoo.api.tracker.model.Configure
+import ir.intoo.api.tracker.model.ResultConfigure
 import ir.intoo.api.tracker.model.TrackerModel
 import retrofit2.Call
 import retrofit2.Callback
@@ -16,16 +15,18 @@ class CallApi {
         val serviceGenerator = ServiceGenerator(context)
         serviceGenerator.createService(APIService::class.java).configure(context.packageName)
             .enqueue(object :
-                Callback<Configure?> {
-                override fun onResponse(call: Call<Configure?>, response: Response<Configure?>) {
+                Callback<ResultConfigure?> {
+                override fun onResponse(
+                    call: Call<ResultConfigure?>,
+                    response: Response<ResultConfigure?>
+                ) {
                     if (response.isSuccessful) {
                         assert(response.body() != null)
-                        storeHelper.saveConfigure(response.body()!!)
+                        response.body()?.let { storeHelper.saveConfigure(it.data) }
                     }
                 }
 
-                override fun onFailure(call: Call<Configure?>, t: Throwable) {
-                    Log.i("LOG", t.message!!)
+                override fun onFailure(call: Call<ResultConfigure?>, t: Throwable) {
                 }
             })
     }
@@ -35,11 +36,14 @@ class CallApi {
         serviceGenerator.createService(APIService::class.java).recordLocation(trackerModel)!!
             .enqueue(object : Callback<Void?> {
                 override fun onResponse(call: Call<Void?>, response: Response<Void?>) {
-                    Log.i("LOG", "OK")
+                    if (response.isSuccessful) {
+
+                    }
+
                 }
 
                 override fun onFailure(call: Call<Void?>, t: Throwable) {
-                    Log.i("LOG", t.message!!)
+
                 }
             })
     }

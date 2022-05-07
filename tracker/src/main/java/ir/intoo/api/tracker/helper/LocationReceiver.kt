@@ -14,19 +14,15 @@ class LocationReceiver(
     init {
         val storeHelper = StoreHelper(context!!)
         val profile = storeHelper.getProfile()
-        locationTracker.userAge = profile.userAge
+        locationTracker.userAge = if (profile.userAge == 0) null else profile.userAge
         locationTracker.userGender = profile.userGender
         locationTracker.deviceId = profile.deviceId
         val callApi = CallApi()
         callApi.sendLocation(context, locationTracker)
         if (showLog) {
-            var gender = "MALE"
-            if (locationTracker.userGender == Tracker.FEMALE) {
-                gender = "FEMALE"
-            }
             Toast.makeText(
                 context,
-                "lat: ${locationTracker.latitude} lon: ${locationTracker.longitude} Age: ${locationTracker.userAge} Gender: $gender",
+                "lat: ${locationTracker.latitude} lon: ${locationTracker.longitude} Age: ${locationTracker.userAge} Gender:  ${locationTracker.userGender}",
                 Toast.LENGTH_LONG
             ).show()
         }

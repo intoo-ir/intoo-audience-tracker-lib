@@ -33,7 +33,7 @@ class StoreHelper(var context: Context) {
         val defaultValue =
             context.resources.getInteger(R.integer.run_time_interval_seconds_default_key)
         configure.runTimeIntervalSeconds =
-            sharedPref.getLong(timeIntervalKey, defaultValue.toLong())*1000
+            sharedPref.getLong(timeIntervalKey, defaultValue.toLong()) * 1000
         configure.changeLocationDetectionMeters =
             sharedPref.getFloat(changeLocationDetectionMeters, 1.0F)
         configure.accessToken = sharedPref.getString(accessTokenKey, "").toString()
@@ -43,8 +43,8 @@ class StoreHelper(var context: Context) {
 
     fun saveProfile(profile: Profile) {
         with(sharedPref.edit()) {
-            putInt(userAgeKey, profile.userAge)
-            putInt(userGenderKey, profile.userGender)
+            profile.userAge?.let { putInt(userAgeKey, it) }
+            profile.userGender?.let { putString(userGenderKey, it) }
             putString(deviceIdKey, profile.deviceId)
             apply()
         }
@@ -56,7 +56,7 @@ class StoreHelper(var context: Context) {
         profile.userAge =
             sharedPref.getInt(userAgeKey, 0)
         profile.userGender =
-            sharedPref.getInt(userGenderKey, 0)
+            sharedPref.getString(userGenderKey, null)
         profile.deviceId = getImei(context)
         return profile
     }
